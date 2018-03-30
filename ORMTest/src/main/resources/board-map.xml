@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boardNames">
+  <!--  <resultMap id="boardMap" type="com.kosmo.board.BoardVO">
+      <result property="bseq" column="bseq" />
+      <result property="btype" column="btype" />
+      <result property="btitle" column="btitle" />
+      <result property="mseq" column="mseq" />
+      <result property="bfile_path" column="bfile_path" />
+      <result property="bfile_name" column="bfile_name" />
+      <result property="bfile_size" column="bfile_size" />
+      <result property="regdate" column="regdate" />
+      <result property="bcon" column="bcon" />
+      <result property="sseq" column="sseq" />
+      <result property="eseq" column="eseq" />
+   </resultMap> -->
+   
+   <!-- 디테일 -->
+   <select id="boardDetail" parameterType="int" resultType="com.kosmo.board.BoardVO">
+   select bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size,regdate from board where bseq=#{bseq} order by bseq
+   </select>
+   
+   <!-- 조회수 -->
+   <select id="boardCount" resultType="int">
+   select count(*) cnt from board
+   </select>
+   
+   <!-- 수정 -->
+   <update id="boardUpdate" parameterType="com.kosmo.board.BoardVO">
+   update board set btitle=#{btitle},bcon=#{bcon} where bseq=#{bseq}
+   </update>
+   
+   <!-- 삭제 -->
+   <delete id="boardDelete" parameterType="int">
+   delete from board where bseq=#{bseq}
+   </delete>
+   
+   <!-- 글쓰기 -->
+   <insert id="boardInsert" parameterType="com.kosmo.board.BoardVO">
+   insert into board(bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size,regdate) 
+   values(board_seq.nextval , #{btype}, #{btitle}, #{bcon}, #{mseq}, #{bfile_path}, #{bfile_name}, #{bfile_size}, sysdate)
+   </insert>
+   
+   <!-- 검색 -->
+   <select id="boardSearchList" parameterType="com.kosmo.board.BoardVO" resultType="com.kosmo.board.BoardVO">
+	select rnum, bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size,regdate from(select  rownum rnum, bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size, regdate from 
+	(select bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size,to_char(regdate, 'YYYY-MM-DD') regdate from board
+	where ${searchGubun} like '%'||#{searchStr}||'%'
+	order by regdate desc) t)where rnum <![CDATA[>=]]>#{sseq} and rnum <![CDATA[<=]]>#{eseq}
+	</select>
+   
+   <!-- 목록 -->
+   <select id="boardList" parameterType="com.kosmo.board.BoardVO" resultType="com.kosmo.board.BoardVO">
+   select rnum, bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size,regdate from
+	(select  rownum rnum, bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size, regdate
+	from (select bseq,btype,btitle,bcon,mseq,bfile_path,bfile_name,bfile_size,to_char(regdate, 'YYYY-MM-DD') regdate from board order by regdate desc) t
+	)where rnum <![CDATA[>=]]>#{sseq} and rnum <![CDATA[<=]]>#{eseq}
+	</select>   
+   
+ 	<!-- 첨부파일업로드 -->
+   <update id="boardUpload" parameterType="com.kosmo.board.BoardVO">
+   update board set btitle=#{btitle},bcon=#{bcon},bfile_path=#{brile_path},bfile_name=#{bfile_name},bfile_size=#{bfile_size} where bseq=#{bseq}
+   </update>
+   
+   
+   
+   
+</mapper>
